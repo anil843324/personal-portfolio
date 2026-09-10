@@ -256,3 +256,15 @@ body { overflow-x: hidden; }
   .stat-num { font-size: 2rem; }
   .terminal-body { font-size: 12px; }
 }
+
+/* Respect visitors who choose reduced motion in their operating system. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal { opacity: 1; transform: none; }
+}

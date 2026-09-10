@@ -10,6 +10,16 @@
   const yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Experience ---------- */
+  const joiningDate = new Date('2023-03-22T00:00:00');
+  const experience = ((new Date() - joiningDate) / (1000 * 60 * 60 * 24 * 365.25)).toFixed(1);
+  const experienceText = document.getElementById('experienceText');
+  const experienceStat = document.querySelector('.stat');
+  if (experienceText) experienceText.textContent = `${experience} years of experience`;
+  if (experienceStat) experienceStat.dataset.target = experience;
+
   /* ---------- Reusable Current Profile Card ---------- */
   const currentProfile = {
     roleLabel: 'Senior Test Engineer',
@@ -95,27 +105,33 @@
   }
 
   /* ---------- Bento cursor-glow (per-card spotlight) ---------- */
-  document.querySelectorAll('.bento').forEach(card => {
-    card.addEventListener('pointermove', (e) => {
-      const r = card.getBoundingClientRect();
-      card.style.setProperty('--mx', `${e.clientX - r.left}px`);
-      card.style.setProperty('--my', `${e.clientY - r.top}px`);
+  if (!reducedMotion) {
+    document.querySelectorAll('.bento').forEach(card => {
+      card.addEventListener('pointermove', (e) => {
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', `${e.clientX - r.left}px`);
+        card.style.setProperty('--my', `${e.clientY - r.top}px`);
+      });
     });
-  });
+  }
 
   /* ---------- Reveal-on-scroll ---------- */
   const revealEls = document.querySelectorAll('.bento, .section-heading');
   revealEls.forEach(el => el.classList.add('reveal'));
 
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('in');
-        io.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.12 });
-  revealEls.forEach(el => io.observe(el));
+  if (reducedMotion) {
+    revealEls.forEach(el => el.classList.add('in'));
+  } else {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => io.observe(el));
+  }
 
   /* ---------- Animated stat counters ---------- */
   const statCards = document.querySelectorAll('.stat');
@@ -127,6 +143,11 @@
     if (!numEl) return;
     const accentSpan = numEl.querySelector('span');
     const accentColor = accentSpan ? accentSpan.className : '';
+
+    if (reducedMotion) {
+      numEl.innerHTML = `${target}<span class="${accentColor}">${suffix}</span>`;
+      return;
+    }
 
     const duration = 1400;
     const start = performance.now();
@@ -188,18 +209,3 @@
 
   /* Contact form removed — using direct social/email links instead. */
 })();
-
-
-//  for exprience calculation
-
-const joiningDate = new Date("2023-03-22");
-const today = new Date();
-
-const diffYears = (today - joiningDate) / (1000 * 60 * 60 * 24 * 365.25);
-const experience = diffYears.toFixed(1);
-
-const statCard = document.querySelector(".stat");
-statCard.setAttribute("data-target", experience);
-
-document.getElementById("experienceText").textContent =
-  `${experience} years of experience`;
